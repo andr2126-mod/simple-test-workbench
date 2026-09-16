@@ -1,0 +1,101 @@
+!option handwritten false
+
+' --- Базовые настройки ---
+skinparam {
+    backgroundColor #FFFFFF
+    defaultFontName Arial
+    roundCorner 10
+    shadowing false
+    monochrome false
+    linetype ortho
+    ArrowColor #333333
+    BorderColor #666666
+    nodeSep 50
+    rankSep 50
+    defaultFontSize 14
+    stereotypeFontSize 10
+    noteFontSize 11
+}
+
+' --- Use Case ---
+skinparam usecase {
+    BackgroundColor #F5F5F5
+    BorderColor #666666
+    FontColor #000000
+    ArrowColor #333333
+    RoundCorner 10
+}
+
+' --- Актёры ---
+skinparam actor {
+    BackgroundColor #E8E8E8
+    BorderColor #666666
+    FontColor #000000
+}
+
+' --- Классы ---
+skinparam class {
+    BackgroundColor #FAFAFA
+    BorderColor #666666
+    HeaderBackgroundColor #E0E0E0
+    AttributeFontColor #000000
+    MethodFontColor #000000
+    StereotypeFontColor #666666
+    RoundCorner 10
+    Padding 8
+}
+
+' --- Последовательности ---
+skinparam sequence {
+    ArrowColor #333333
+    LifeLineBorderColor #666666
+    ParticipantBackgroundColor #F5F5F5
+    ParticipantBorderColor #666666
+    ParticipantPadding 8
+}
+
+' --- Заметки ---
+skinparam note {
+    BackgroundColor #FFF9E6
+    BorderColor #CCCC66
+    FontColor #333333
+    RoundCorner 10
+    Padding 8
+}
+
+' --- Пакеты ---
+skinparam package {
+    BackgroundColor #F0F0F0
+    BorderColor #999999
+    FontColor #333333
+    StereotypeFontColor #666666
+    RoundCorner 10
+    Padding 8
+}
+
+' --- Прямоугольники (граница системы) ---
+skinparam rectangle {
+    BackgroundColor #F8F8F8
+    BorderColor #999999
+    FontColor #333333
+    RoundCorner 10
+    Padding 10
+}
+
+' --- Перечисления ---
+skinparam enum {
+    BackgroundColor #F0F8FF
+    BorderColor #6699CC
+    FontColor #000000
+    RoundCorner 10
+    Padding 8
+}
+
+' --- Интерфейсы ---
+skinparam interface {
+    BackgroundColor #F0FFF0
+    BorderColor #66CC66
+    FontColor #000000
+    RoundCorner 10
+    Padding 8
+}
