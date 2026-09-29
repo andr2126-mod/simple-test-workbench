@@ -1,5 +1,3 @@
-' Базовые настройки (исправлено: убран linetype ortho — он вызывает
-' наложение стрелок и смещение подписей; nodesep/ranksep вынесены отдельно)
 !option handwritten false
 
 skinparam {
