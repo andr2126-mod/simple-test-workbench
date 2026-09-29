@@ -1,21 +1,23 @@
+' Базовые настройки (исправлено: убран linetype ortho — он вызывает
+' наложение стрелок и смещение подписей; nodesep/ranksep вынесены отдельно)
 !option handwritten false
 
-' --- Базовые настройки ---
 skinparam {
     backgroundColor #FFFFFF
     defaultFontName Arial
+    defaultFontSize 14
     roundCorner 10
     shadowing false
     monochrome false
-    linetype ortho
     ArrowColor #333333
     BorderColor #666666
-    nodeSep 50
-    rankSep 50
-    defaultFontSize 14
     stereotypeFontSize 10
     noteFontSize 11
 }
+
+' Отступы между элементами (уменьшают наложение стрелок)
+skinparam nodesep 40
+skinparam ranksep 60
 
 ' --- Use Case ---
 skinparam usecase {
@@ -52,6 +54,8 @@ skinparam sequence {
     ParticipantBackgroundColor #F5F5F5
     ParticipantBorderColor #666666
     ParticipantPadding 8
+    ActorBorderColor #666666
+    ActorBackgroundColor #E8E8E8
 }
 
 ' --- Заметки ---
