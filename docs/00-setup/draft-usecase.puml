@@ -1,0 +1,29 @@
+@startuml draft-usecase
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Тестировщик" as Tester
+actor "Разработчик" as Dev
+actor "CI-сервер" as CI
+
+rectangle "Система автоматического тестирования" {
+  usecase "Запустить набор тестов" as UC1
+  usecase "Просмотреть отчёт по прогону" as UC2
+  usecase "Просмотреть историю прогонов" as UC3
+  usecase "Отметить тест как флаки" as UC4
+  usecase "Настроить интеграцию с CI" as UC5
+  usecase "Триггер прогона из CI" as UC6
+}
+
+Tester --> UC1
+Tester --> UC2
+Tester --> UC3
+Tester --> UC4
+Dev --> UC2
+Dev --> UC3
+CI --> UC6
+UC6 ..> UC1 : <<include>>
+UC5 ..> UC6 : <<include>>
+UC4 ..> UC3 : <<extend>>
+@enduml

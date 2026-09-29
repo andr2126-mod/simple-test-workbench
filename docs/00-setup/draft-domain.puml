@@ -1,0 +1,40 @@
+@startuml draft-domain
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+class TestSuite {
+  +id: UUID
+  +name: String
+  +tags: String[]
+  +launch(): Run
+}
+class TestCase {
+  +id: UUID
+  +title: String
+  +isFlaky: Boolean
+  +retryCount: int
+}
+class Run {
+  +id: UUID
+  +startedAt: DateTime
+  +finishedAt: DateTime
+  +status: RunStatus
+  +triggerSource: TriggerSource
+}
+class TestResult {
+  +id: UUID
+  +status: ResultStatus
+  +durationMs: int
+  +logsUrl: String
+}
+class Report {
+  +id: UUID
+  +generatedAt: DateTime
+  +summaryUrl: String
+}
+
+TestSuite "1" *-- "1..*" TestCase : содержит
+Run "1" o-- "1" TestSuite : запускает
+Run "1" *-- "1..*" TestResult : включает
+TestResult "0..1" --> "1" TestCase : относится к
+Report "1" --> "1" Run : строится по
+Run "1..*" --> "0..1" Run : повторный прогон
+@enduml
