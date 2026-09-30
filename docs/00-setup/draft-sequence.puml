@@ -1,6 +1,6 @@
 @startuml draft-sequence
 !include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
-title Сценарий: запуск набора тестов из CI и формирование отчёта
+title Сценарий: запуск набора тестов из CI, отчёт возвращается через TestAPI
 
 actor "CI-сервер" as CI
 participant "TestAPI" as API
@@ -12,7 +12,7 @@ CI -> API: POST /runs (suiteId, commit)
 API -> DB: создать Run (status=PENDING)
 API -> Runner: запустить набор тестов
 Runner -> DB: сохранить TestResult по каждому тесту
-Runner --> API: Run завершён (status)
-API -> Reports: сгенерировать отчёт
-Reports --> CI: отчёт и статус прогона
+Runner --> API: прогон завершён (статусы)
+API -> Reports: сгенерировать отчёт (runId)
+API --> CI: HTTP 200: отчёт (summaryUrl) и статус прогона
 @enduml

@@ -32,9 +32,9 @@ class Report {
 }
 
 TestSuite "1" *-- "1..*" TestCase : содержит
-Run "1" o-- "1" TestSuite : запускает
+TestSuite "1" o-- "0..*" Run : запускается в прогонах
 Run "1" *-- "1..*" TestResult : включает
-TestResult "0..1" --> "1" TestCase : относится к
+TestResult "0..*" --> "1" TestCase : относится к
 Report "1" --> "1" Run : строится по
-Run "1..*" --> "0..1" Run : повторный прогон
+Run "0..*" --> "0..1" Run : повторный прогон исходного
 @enduml
