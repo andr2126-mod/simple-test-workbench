@@ -3,16 +3,23 @@
 title Сценарий: запуск набора тестов из CI, отчёт возвращается через TestAPI
 
 actor "CI-сервер" as CI
-participant "TestAPI" as API
+participant "TestAPI (вкл. CI-адаптер)" as API
 participant "TestRunner" as Runner
 participant "ReportService" as Reports
 database "RunHistory" as DB
 
+note over API
+  CI-адаптер — часть TestAPI: принимает события CI,
+  нормализует commitSha и triggerSource
+end note
+
 CI -> API: POST /runs (suiteId, commit)
-API -> DB: создать Run (status=PENDING)
+API -> DB: создать Run (status=PENDING, commitSha)
 API -> Runner: запустить набор тестов
 Runner -> DB: сохранить TestResult по каждому тесту
 Runner --> API: прогон завершён (статусы)
+API -> DB: выявить и пометить флаки-тесты (по истории прогонов)
 API -> Reports: сгенерировать отчёт (runId)
-API --> CI: HTTP 200: отчёт (summaryUrl) и статус прогона
+Reports --> API: отчёт готов (summaryUrl)
+API --> CI: HTTP 200: summaryUrl и статус прогона
 @enduml

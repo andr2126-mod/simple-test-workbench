@@ -1,5 +1,5 @@
-!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
 @startuml draft-usecase
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
 left to right direction
 skinparam packageStyle rectangle
 
@@ -19,6 +19,7 @@ rectangle "Система автоматического тестировани�
 Tester --> UC1
 Tester --> UC2
 Tester --> UC3
+Tester --> UC4
 Dev --> UC2
 Dev --> UC3
 Dev --> UC5
