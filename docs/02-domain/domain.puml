@@ -1,0 +1,108 @@
+@startuml domain
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title Система автоматического тестирования: модель предметной области
+hide circle
+
+package "management" as M <<управление тестовыми активами>> {
+  class TestSuite {
+    +id: UUID
+    +name: String
+    +tags: String[]
+    +launch(): Run
+  }
+  class TestCase {
+    +id: UUID
+    +title: String
+    +isFlaky: Boolean
+    +retryCount: int
+    -version: int
+  }
+}
+
+package "execution" as E <<прогоны и результаты>> {
+  class Run {
+    +id: UUID
+    +startedAt: DateTime
+    +finishedAt: DateTime
+    +status: RunStatus
+    +triggerSource: TriggerSource
+    +commitSha: String
+    +errorReason: String
+    -idempotencyKey: String
+    +computeStatus(): RunStatus
+    +retry(): Run
+  }
+  class TestResult {
+    +id: UUID
+    +status: ResultStatus
+    +durationMs: int
+    +environment: String
+    +logsUrl: String
+  }
+  class Report {
+    +id: UUID
+    +generatedAt: DateTime
+    +summaryUrl: String
+  }
+  class FlakyDetector {
+    +проанализировать(история: Run[]): void
+  }
+  class FlakyPolicy {
+    +окноN: int
+    +минПадений: int
+  }
+  enum RunStatus {
+    PENDING
+    PASSED
+    FAILED
+    ERROR
+    CANCELLED
+  }
+  enum ResultStatus {
+    PASSED
+    FAILED
+    ERROR
+    SKIPPED
+  }
+  enum TriggerSource {
+    MANUAL
+    CI_EVENT
+    SCHEDULE
+  }
+}
+
+package "integration" as I <<внешние интеграции>> {
+  abstract class Integration {
+    +id: UUID
+    +token: Secret
+    {abstract} +нормализовать(payload): Run
+  }
+  class CIIntegration {
+    +webhookUrl: String
+    +привязатьНабор(ветка: String): void
+  }
+}
+
+' --- Обобщение ---
+CIIntegration --|> Integration
+
+' --- Композиции и агрегация ---
+TestSuite "1" *-- "1..*" TestCase : содержит
+TestSuite "1" o-- "0..*" Run : запускается в прогонах
+Run "1" *-- "1..*" TestResult : включает
+
+' --- Ассоциации (кратности везде) ---
+TestResult "0..*" --> "1" TestCase : относится к
+Report "1" --> "1" Run : строится по
+Run "0..*" --> "0..1" Run : повтор исходного
+CIIntegration "0..*" -- "0..*" TestSuite : привязывает к веткам
+
+' --- Зависимости ---
+FlakyDetector ..> FlakyPolicy : <<use>>
+FlakyDetector ..> TestCase : <<маркирует>>
+
+' --- Зависимости пакетов (ациклично: integration -> execution -> management) ---
+I ..> E : <<use>>
+I ..> M : <<use>>
+E ..> M : <<use>>
+@enduml
