@@ -4,7 +4,6 @@ class TestSuite {
   +id: UUID
   +name: String
   +tags: String[]
-  +launch(): Run
 }
 class TestCase {
   +id: UUID
@@ -32,10 +31,10 @@ class Report {
   +summaryUrl: String
 }
 
-TestSuite "1" *-- "1..*" TestCase : содержит
-TestSuite "1" o-- "0..*" Run : запускается в прогонах
-Run "1" *-- "1..*" TestResult : включает
+TestSuite "0..*" o-- "1..*" TestCase : содержит
+Run "0..*" --> "1" TestSuite : относится к набору
+Run "1" *-- "0..*" TestResult : включает
 TestResult "0..*" --> "1" TestCase : относится к
-Report "1" --> "1" Run : строится по
-Run "0..*" --> "0..1" Run : повторный прогон исходного
+Report "0..1" --> "1" Run : строится по
+Run "0..*" --> "0..1" Run : повтор исходного
 @enduml

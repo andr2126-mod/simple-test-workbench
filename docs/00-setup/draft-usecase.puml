@@ -13,7 +13,7 @@ rectangle "Система автоматического тестировани�
   usecase "Просмотреть историю прогонов" as UC3
   usecase "Выявить и маркировать флаки-тесты" as UC4
   usecase "Настроить интеграцию с CI" as UC5
-  usecase "Триггер прогона из CI" as UC6
+  usecase "Запустить прогон по событию CI" as UC6
 }
 
 Tester --> UC1
@@ -26,4 +26,4 @@ Dev --> UC5
 CI --> UC6
 UC6 ..> UC1 : <<include>>
 UC1 ..> UC4 : <<include>>
-@enduml
+@enduml

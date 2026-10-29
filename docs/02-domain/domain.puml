@@ -8,7 +8,6 @@ package "management" as M <<управление тестовыми актива
     +id: UUID
     +name: String
     +tags: String[]
-    +launch(): Run
   }
   class TestCase {
     +id: UUID
@@ -44,12 +43,10 @@ package "execution" as E <<прогоны и результаты>> {
     +generatedAt: DateTime
     +summaryUrl: String
   }
-  class FlakyDetector {
-    +проанализировать(история: Run[]): void
-  }
   class FlakyPolicy {
-    +окноN: int
-    +минПадений: int
+    +windowN: int
+    +minFailures: int
+    +evaluate(results: TestResult[]): Boolean
   }
   enum RunStatus {
     PENDING
@@ -74,35 +71,37 @@ package "execution" as E <<прогоны и результаты>> {
 package "integration" as I <<внешние интеграции>> {
   abstract class Integration {
     +id: UUID
-    +token: Secret
-    {abstract} +нормализовать(payload): Run
+    -encryptedToken: String
+    {abstract} +authenticate(token: String): Boolean
   }
   class CIIntegration {
     +webhookUrl: String
-    +привязатьНабор(ветка: String): void
+  }
+  class BranchBinding {
+    +branch: String
   }
 }
 
 ' --- Обобщение ---
 CIIntegration --|> Integration
 
-' --- Композиции и агрегация ---
-TestSuite "1" *-- "1..*" TestCase : содержит
-TestSuite "1" o-- "0..*" Run : запускается в прогонах
-Run "1" *-- "1..*" TestResult : включает
+' --- Агрегация и композиция ---
+TestSuite "0..*" o-- "1..*" TestCase : содержит
+Run "1" *-- "0..*" TestResult : включает
 
-' --- Ассоциации (кратности везде) ---
+' --- Ассоциации (кратности везде; направление - в сторону пакета management) ---
+Run "0..*" --> "1" TestSuite : относится к набору
 TestResult "0..*" --> "1" TestCase : относится к
-Report "1" --> "1" Run : строится по
+Report "0..1" --> "1" Run : строится по
 Run "0..*" --> "0..1" Run : повтор исходного
-CIIntegration "0..*" -- "0..*" TestSuite : привязывает к веткам
+CIIntegration "1" -- "0..*" BranchBinding : содержит привязки
+BranchBinding "0..*" --> "1" TestSuite : привязывает набор
 
 ' --- Зависимости ---
-FlakyDetector ..> FlakyPolicy : <<use>>
-FlakyDetector ..> TestCase : <<маркирует>>
+FlakyPolicy ..> TestResult : <<use>>
+FlakyPolicy ..> TestCase : <<оценивает>>
 
-' --- Зависимости пакетов (ациклично: integration -> execution -> management) ---
-I ..> E : <<use>>
+' --- Зависимости пакетов (ациклично: из management ссылок наружу нет) ---
 I ..> M : <<use>>
 E ..> M : <<use>>
 @enduml

@@ -3,57 +3,61 @@
 title Состояние системы на 28.10.2026, 14:30
 
 object "<u>smoke-checkout : TestSuite</u>" as s {
-name = "smoke-checkout"
-tags = ["smoke", "checkout"]
+  name = "smoke-checkout"
+  tags = ["smoke", "checkout"]
 }
 object "<u>login-case : TestCase</u>" as t {
-title = "login_by_email"
-isFlaky = true
-retryCount = 2
-version = 3
+  title = "login_by_email"
+  isFlaky = true
+  retryCount = 2
+  version = 3
 }
 object "<u>run-1189 : Run</u>" as r1 {
-status = FAILED
-triggerSource = CI_EVENT
-commitSha = "a1b2c3d"
-startedAt = 2026-10-28T10:12
-finishedAt = 2026-10-28T10:14
-errorReason = null
-исходныйПрогон = null
+  status = FAILED
+  triggerSource = CI_EVENT
+  commitSha = "a1b2c3d"
+  startedAt = 2026-10-28T10:12
+  finishedAt = 2026-10-28T10:14
+  errorReason = null
 }
 object "<u>run-1201 : Run</u>" as r2 {
-status = PASSED
-triggerSource = MANUAL
-commitSha = "a1b2c3d"
-startedAt = 2026-10-28T10:31
-finishedAt = 2026-10-28T10:33
+  status = PASSED
+  triggerSource = MANUAL
+  commitSha = "a1b2c3d"
+  startedAt = 2026-10-28T10:31
+  finishedAt = 2026-10-28T10:33
+  errorReason = null
 }
 object "<u>res-8831 : TestResult</u>" as res1 {
-status = FAILED
-durationMs = 412
-environment = "stage-2"
+  status = FAILED
+  durationMs = 412
+  environment = "stage-2"
 }
 object "<u>res-8845 : TestResult</u>" as res2 {
-status = PASSED
-durationMs = 380
-environment = "stage-2"
+  status = PASSED
+  durationMs = 380
+  environment = "stage-2"
 }
 object "<u>rep-1189 : Report</u>" as rep {
-generatedAt = 2026-10-28T10:14
-summaryUrl = "https://reports.example/1189"
+  generatedAt = 2026-10-28T10:14
+  summaryUrl = "https://reports.example/1189"
 }
 object "<u>gitlab-ci : CIIntegration</u>" as ci {
-webhookUrl = "https://ci.example/hook"
+  webhookUrl = "https://ci.example/hook"
+}
+object "<u>bind-1 : BranchBinding</u>" as bind {
+  branch = "main"
 }
 
-s *-- t
-s -- r1
-s -- r2
+s o-- t
+r1 --> s
+r2 --> s
 r1 *-- res1
 r2 *-- res2
-t -- res1
-t -- res2
+res1 --> t
+res2 --> t
 r2 --> r1 : повтор исходного
 rep --> r1
-ci -- s
+ci -- bind
+bind --> s
 @enduml
