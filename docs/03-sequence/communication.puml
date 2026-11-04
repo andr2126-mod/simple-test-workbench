@@ -1,0 +1,28 @@
+@startuml communication
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title ВИ-06 «Запустить прогон по событию CI»: диаграмма коммуникации
+
+object "<u>:Разработчик</u>" as dev
+object "<u>:CI-сервер</u>" as ci
+object "<u>integ : CIIntegration</u>" as integ
+object "<u>run : Run</u>" as run
+object "<u>policy : FlakyPolicy</u>" as policy
+object "<u>rep : Report</u>" as rep
+object "<u>db : RunHistory</u>" as db
+
+dev -- ci : 1: git push(коммит) >
+ci -- integ : 2: запросить прогон(набор, коммит, ветка, токен) >
+integ -- integ : 2.1: authenticate(токен)
+integ -- run : 2.2: создать(commitSha, CI_EVENT, ключ) >
+run -- db : 2.2.1: INSERT Run (PENDING) >
+integ -- run : 2.3: выполнить() (асинхронно) >
+run -- db : 2.3.1 *[для каждого теста]: INSERT TestResult >
+run -- policy : 2.3.2: evaluate(история результатов) >
+run -- run : 2.3.3: computeStatus()
+run -- rep : 2.3.4: построить(Run) >
+rep -- db : 2.3.4.1: INSERT Report >
+run -- db : 2.3.5: UPDATE Run (итоговый статус) >
+ci -- integ : 3 *[пока PENDING]: статус(runId) >
+integ -- db : 3.1: SELECT Run, Report >
+ci -- dev : 4: статус сборки (gate) >
+@enduml

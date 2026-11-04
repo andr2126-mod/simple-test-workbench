@@ -1,0 +1,62 @@
+@startuml main-flow
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title ВИ-06 «Запустить прогон по событию CI»: основной сценарий
+
+actor "Разработчик" as dev
+actor "CI-сервер" as ci <<system>>
+participant "CIIntegration" as integ
+participant "Run" as run
+participant "FlakyPolicy" as policy
+participant "Report" as rep
+database "RunHistory" as db
+
+dev -> ci : git push (коммит)
+activate ci
+ci -> integ : запросить прогон(набор, коммит, ветка, токен)
+activate integ
+integ -> integ : authenticate(токен)
+integ -> run : создать(commitSha, CI_EVENT, ключ)
+activate run
+run -> db : INSERT Run (PENDING)
+db --> run : runId
+run --> integ : Run
+deactivate run
+integ ->> run ++ : выполнить() (асинхронно)
+integ --> ci : runId (приём подтверждён)
+deactivate integ
+
+... прогон выполняется асинхронно ...
+
+loop для каждого теста набора
+  run -> db : INSERT TestResult
+  db --> run : id
+end
+run -> policy : evaluate(история результатов)
+activate policy
+policy --> run : флаки-тесты
+deactivate policy
+run -> run : computeStatus()
+run -> rep : построить(Run)
+activate rep
+rep -> db : INSERT Report
+db --> rep : summaryUrl
+rep --> run : Report
+deactivate rep
+run -> db : UPDATE Run (итоговый статус)
+deactivate run
+
+loop пока статус прогона PENDING
+  ci -> integ : статус(runId)
+  activate integ
+  integ -> db : SELECT Run
+  db --> integ : Run
+  opt прогон завершён
+    integ -> db : SELECT Report
+    db --> integ : summaryUrl
+  end
+  integ --> ci : статус (и summaryUrl, если прогон завершён)
+  deactivate integ
+end
+ci --> dev : статус сборки (gate)
+deactivate ci
+@enduml

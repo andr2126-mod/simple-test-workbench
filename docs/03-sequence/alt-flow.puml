@@ -1,0 +1,42 @@
+@startuml alt-flow
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title ВИ-06 «Запустить прогон по событию CI»: исключения
+
+actor "CI-сервер" as ci <<system>>
+participant "CIIntegration" as integ
+participant "Run" as run
+database "RunHistory" as db
+
+ci -> integ : запросить прогон(набор, коммит, ветка, токен, ключ)
+activate integ
+integ -> integ : authenticate(токен)
+integ -> db : найти привязку(набор, ветка) и Run по ключу
+db --> integ : привязка, Run
+alt токен недействителен (authenticate = false, И-1)
+  integ --> ci : отказ: токен недействителен, Run не создан
+else привязка набора к ветке не найдена (И-2)
+  integ --> ci : ошибка конфигурации, Run не создан
+else Run с таким ключом уже существует (повтор запроса, И-4)
+  integ --> ci : runId существующего Run, дубликат не создан
+else запрос корректен
+  integ -> run : создать(commitSha, CI_EVENT, ключ)
+  activate run
+  run -> db : INSERT Run (PENDING)
+  db --> run : runId
+  run --> integ : Run
+  deactivate run
+  integ ->> run : выполнить() (асинхронно)
+  integ --> ci : runId (приём подтверждён)
+end
+deactivate integ
+
+opt прогон принят к исполнению
+  loop для каждого теста набора
+    opt среда исполнения недоступна (И-3)
+      run -> db : INSERT TestResult (ERROR)
+    end
+  end
+  run -> run : computeStatus()
+  run -> db : UPDATE Run (итоговый статус)
+end
+@enduml
