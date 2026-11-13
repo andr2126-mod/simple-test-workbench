@@ -16,13 +16,14 @@ integ -- integ : 2.1: authenticate(токен)
 integ -- run : 2.2: создать(commitSha, CI_EVENT, ключ) >
 run -- db : 2.2.1: INSERT Run (PENDING) >
 integ -- run : 2.3: выполнить() (асинхронно) >
-run -- db : 2.3.1 *[для каждого теста]: INSERT TestResult >
-run -- policy : 2.3.2: evaluate(история результатов) >
-run -- run : 2.3.3: computeStatus()
-run -- rep : 2.3.4: построить(Run) >
-rep -- db : 2.3.4.1: INSERT Report >
-run -- db : 2.3.5: UPDATE Run (итоговый статус) >
-ci -- integ : 3 *[пока PENDING]: статус(runId) >
+run -- db : 2.3.1: UPDATE Run (RUNNING) >
+run -- db : 2.3.2 *[для каждого теста]: INSERT TestResult >
+run -- policy : 2.3.3: evaluate(история результатов) >
+run -- run : 2.3.4: computeStatus()
+run -- rep : 2.3.5: построить(Run) >
+rep -- db : 2.3.5.1: INSERT Report >
+run -- db : 2.3.6: UPDATE Run (итоговый статус) >
+ci -- integ : 3 *[пока не завершён]: статус(runId) >
 integ -- db : 3.1: SELECT Run, Report >
 ci -- dev : 4: статус сборки (gate) >
 @enduml

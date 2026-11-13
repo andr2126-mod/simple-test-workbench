@@ -1,0 +1,47 @@
+@startuml lifecycle
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title Жизненный цикл Run
+hide empty description
+
+state PENDING
+PENDING : entry / сохранитьИдемпотентныйКлюч()
+
+state RUNNING {
+  state EXECUTING
+  state ANALYZING
+  [*] --> EXECUTING
+  EXECUTING --> ANALYZING : всеТестыВыполнены / сохранитьРезультаты()
+  ANALYZING --> [*] : анализЗавершён / выявитьФлаки(), построитьОтчёт()
+}
+RUNNING : entry / занятьСреду()
+RUNNING : exit / освободитьСреду()
+
+state итог <<choice>>
+state PASSED
+state FAILED
+state ERROR
+state CANCELLED
+state успех <<end>>
+state неуспех <<end>>
+
+[*] --> PENDING : создать()\n[токен действителен, набор привязан]
+PENDING --> RUNNING : средаДоступна
+PENDING --> ERROR : средаНедоступна / записатьПричину()
+PENDING --> CANCELLED : отменить()
+
+RUNNING --> PENDING : узелУпал\n[attempt < maxAttempts] / attempt++
+RUNNING --> ERROR : узелУпал\n[attempt >= maxAttempts] / записатьПричину()
+RUNNING --> ERROR : after(maxRunTime) / записатьПричину()
+RUNNING --> CANCELLED : отменить() / остановитьПрогон()
+RUNNING --> итог
+итог --> PASSED : [нет упавших тестов, кроме флаки]
+итог --> FAILED : [есть упавшие тесты, не флаки]
+
+PASSED --> успех
+FAILED --> неуспех
+ERROR --> неуспех
+CANCELLED --> неуспех
+
+note right of успех : успешный финал
+note left of неуспех : неуспешный финал
+@enduml

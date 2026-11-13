@@ -27,6 +27,7 @@ deactivate integ
 
 ... прогон выполняется асинхронно ...
 
+run -> db : UPDATE Run (RUNNING)
 loop для каждого теста набора
   run -> db : INSERT TestResult
   db --> run : id
@@ -45,7 +46,7 @@ deactivate rep
 run -> db : UPDATE Run (итоговый статус)
 deactivate run
 
-loop пока статус прогона PENDING
+loop пока прогон не завершён (PENDING или RUNNING)
   ci -> integ : статус(runId)
   activate integ
   integ -> db : SELECT Run

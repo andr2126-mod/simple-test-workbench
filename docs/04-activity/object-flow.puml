@@ -1,0 +1,57 @@
+@startuml object-flow
+!include https://raw.githubusercontent.com/andr2126-mod/simple-test-workbench/main/_style.puml
+title Жизненный цикл Run в процессе «Запуск прогона по событию CI»
+
+<style>
+activityDiagram {
+  .object {
+    RoundCorner 0
+    BackgroundColor #FFF4D6
+    LineColor #8A6D1D
+  }
+}
+</style>
+
+|CI-сервер|
+start
+:Запросить прогон набора тестов;
+|Система автоматического тестирования|
+:Создать Run;
+:Run\n[PENDING]; <<object>>
+:Подтвердить приём и вернуть runId;
+|Среда исполнения тестов|
+if (среда исполнения доступна?) then (нет)
+  |Система автоматического тестирования|
+  :Зафиксировать сбой среды;
+  :Run\n[ERROR]; <<object>>
+  stop
+else (да)
+endif
+:Run\n[RUNNING]; <<object>>
+|Среда исполнения тестов|
+split
+  :Выполнить тесты набора;
+  :TestResult\n[PASSED | FAILED | ERROR | SKIPPED]; <<object>>
+  |Система автоматического тестирования|
+  :Сохранить результаты в историю;
+split again
+  |CI-сервер|
+  :Отменить сборку;
+  |Система автоматического тестирования|
+  :Остановить прогон;
+  :Run\n[CANCELLED]; <<object>>
+  stop
+end split
+|Система автоматического тестирования|
+:Вычислить итоговый статус прогона;
+if (все тесты прошли или упали только флаки?) then (да)
+  :Run\n[PASSED]; <<object>>
+else (нет)
+  :Run\n[FAILED]; <<object>>
+endif
+:Построить отчёт;
+:Report; <<object>>
+|CI-сервер|
+:Получить статус прогона и ссылку на отчёт;
+stop
+@enduml
