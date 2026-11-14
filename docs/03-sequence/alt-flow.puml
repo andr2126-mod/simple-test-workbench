@@ -32,11 +32,23 @@ deactivate integ
 
 opt прогон принят к исполнению
   loop для каждого теста набора
-    opt среда исполнения недоступна (И-3)
-      run -> db : INSERT TestResult (ERROR)
+    opt среда недоступна или узел упал (И-3)
+      alt attempt < maxAttempts
+        run -> db : UPDATE Run (PENDING, attempt + 1)
+      else attempt >= maxAttempts
+        run -> db : INSERT TestResult (ERROR)
+      end
     end
   end
-  run -> run : computeStatus()
-  run -> db : UPDATE Run (итоговый статус)
+  alt CI-сервер отменил сборку (И-5)
+    ci ->> integ : отменить(runId)
+    integ ->> run : остановить()
+    run -> db : UPDATE Run (CANCELLED)
+  else превышено время выполнения (И-6)
+    run -> db : UPDATE Run (ERROR, причина)
+  else выполнение завершено
+    run -> run : computeStatus()
+    run -> db : UPDATE Run (итоговый статус)
+  end
 end
 @enduml
