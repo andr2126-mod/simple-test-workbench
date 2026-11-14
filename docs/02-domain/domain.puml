@@ -27,6 +27,7 @@ package "execution" as E <<прогоны и результаты>> {
     +triggerSource: TriggerSource
     +commitSha: String
     +errorReason: String
+    +attempt: int
     -idempotencyKey: String
     +computeStatus(): RunStatus
     +retry(): Run
@@ -50,6 +51,7 @@ package "execution" as E <<прогоны и результаты>> {
   }
   enum RunStatus {
     PENDING
+    RUNNING
     PASSED
     FAILED
     ERROR
